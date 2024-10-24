@@ -1,1 +1,4 @@
-# arkpz-pzpi-22-7-ihnatiev-oleksii
+ПЗПІ-22-7
+
+Ігнатьєв Олексій
+
