@@ -1,0 +1,857 @@
+МIНIСТЕРСТВО ОСВIТИ І НАУКИ УКРАЇНИ
+
+ХАРКIВСЬКИЙ НАЦІОНАЛЬНИЙ
+УНIВЕРСИТЕТ РАДIОЕЛЕКТРОНIКИ
+
+
+Кафедра «Програмна інженерія»
+
+
+Звіт
+з лабораторної роботи №2
+з дисципліни  «Аналіз та рефакторінг коду»
+на тему «РОЗРОБКА БАЗИ ДАНИХ ДЛЯ СЕРВЕРНОЇ ЧАСТИНИ ПРОГРАМНОЇ СИСТЕМИ ТА ПРИКЛАДНОГО ПРОГРАМНОГО ІНТЕРФЕЙСУ (API)»
+
+
+Виконав: 							Прийняв:
+ст. гр. ПЗПІ-22-7                       			ст. викладач кафедри ПІ        Ігнатьєв Олексій Геннадійович			Сокорчук Ігор Петрович
+
+
+
+
+Харкiв 2024
+1 МЕТА
+
+Розробити базу даних для серверної частини  програмної системи та прикладного програмного інтерфейсу.
+
+2 ЗАВДАННЯ
+
+- Розробити будову програмної системи.
+- Створити UML діаграму прецедентів для серверної частини системи.
+- Створити ER діаграму даних.
+- Розробити базу даних (БД) програмної системи.
+- Створити діаграму структури БД.
+- Розробити функції роботи з БД (ORM або CoRM тощо).
+- Розробити API (REST або GraphQL, gRPC тощо) для взаємодії серверної частини з клієнтами.
+- Створити специфікацію розробленого API.
+- Створити програмну реалізацію розробленого API та функцій роботи з БД.
+- Перевірити роботу створеного програмного коду серверної частини системи.
+
+3 ХІД РОБОТИ
+
+Для виконання цієї лабораторної роботи були використані такі технології: ASP .NET Core WebApi, MS SQL Server та Entity Framework для роботи з базою даних. У проекті створено кілька основних каталогів: Aggregate — для моделей бази даних, DTO — для об'єктів передачі даних, які надходять та відправляються користувачем, Database — для налаштування взаємодії між серверною частиною та базою даних, а також управління моделями, Controllers — для обробки HTTP-запитів та Repositories — для роботи з базою даних.
+
+Спочатку була створена ER-діаграма бази даних системи, яка представлена на рисунку 1.
+
+ 
+Рисунок 1 - ER-діаграма бази даних
+
+Наступним кроком було створення Use Case діаграми, що наведена на рисунку 2.
+ 
+Рисунок 2 –  прецедентів для серверної частини
+
+Після створення бази даних була отримана схема бази даних, яка представлена на рисунку 3 нижче.
+
+ 
+Рисунок 3 – Діаграма структури бази даних
+
+Оскільки використовується Swagger, специфікацію API було створено автоматично, вона знаходиться в додатку А.
+Фрагменти програмного коду, для демонстрації логіки взаємодії серверної частини з базою даних, наведені в додатку Б.1.
+Фрагменти програмного коду, для демонстрації логіки взаємодії серверної частини з клієнтами, наведені в додатку Б.2.
+
+
+
+
+
+
+
+
+ВИСНОВКИ
+В ході виконання лабораторної роботи була розроблена базу даних для серверної частини  програмної системи та прикладний програмний інтерфейс. Також було створено відео-запис з демонстрацією роботи: https://youtu.be/tDuEgsiW720?si=PskyuhOHYJqJc29a
+
+
+ДОДАТОК А
+Специфікація API
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Your API",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/admin/assign-admin-role": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignAdminRoleCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignAdminRoleCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignAdminRoleCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/admin/user": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/admin/ban/{userId}": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "isBanned",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/air-pollution/{userId}": {
+      "get": {
+        "tags": [
+          "AirPollution"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/air-pollution/history": {
+      "get": {
+        "tags": [
+          "AirPollution"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/auth/login-with-google": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginWithGoogleCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginWithGoogleCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginWithGoogleCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/auth/login-with-github": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [
+          {
+            "name": "Code",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "put": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/location": {
+      "post": {
+        "tags": [
+          "Location"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLocationCommand"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLocationCommand"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLocationCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Location"
+        ],
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "style": "form",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/user/edit-profile": {
+      "put": {
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "UserId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "Email": {
+                    "type": "string"
+                  },
+                  "UserName": {
+                    "type": "string"
+                  },
+                  "Photo": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "UserId": {
+                  "style": "form"
+                },
+                "Email": {
+                  "style": "form"
+                },
+                "UserName": {
+                  "style": "form"
+                },
+                "Photo": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/user/{userId}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "style": "simple",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/user/forgot-password": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/user/reset-user-password": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AssignAdminRoleCommand": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateLocationCommand": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double"
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ForgotPasswordDto": {
+        "required": [
+          "clientUri",
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "format": "email"
+          },
+          "clientUri": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginCommand": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginWithGoogleCommand": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LogoutCommand": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "RegisterCommand": {
+        "type": "object",
+        "properties": {
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ResetPasswordDto": {
+        "required": [
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "password": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "confirmPassword": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "apiKey",
+        "description": "Введите 'Bearer' [пробел] и ваш токен внизу для доступа к защищённым ресурсам.",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": []
+    }
+  ]
+}
+  
+
+ДОДАТОК Б
+
+Фрагменти програмного коду
+Б.1 Фрагменти програмного коду для демонстрації взаємодії серверної частини з БД
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using AirSense.Application.Interfaces.Repositories;
+using AirSense.Domain.UserAggregate;
+using AirSense.Infrastructure.Database;
+
+namespace AirSense.Infrastructure.Repositories;
+
+public class AuthRepository(UserManager<User> userManager, AirSenseContext context) : IAuthRepository
+{
+    public async Task<User> FindByEmailAsync(string email, CancellationToken cancellationToken)
+    {
+        return await userManager.FindByEmailAsync(email);
+    }
+
+    public async Task<IdentityResult> AddLoginAsync(User user, UserLoginInfo loginInfo, CancellationToken cancellationToken)
+    {
+        return await userManager.AddLoginAsync(user, loginInfo);
+    }
+
+    public async Task<IList<UserLoginInfo>> GetLoginsAsync(User user, CancellationToken cancellationToken)
+    {
+        return await userManager.GetLoginsAsync(user);
+    }
+
+    public async Task<IdentityResult> RemoveTokenAsync(string token, CancellationToken cancellationToken)
+    {
+        var userToken = await context.UserTokens.FirstOrDefaultAsync(z => z.Value == token, cancellationToken);
+
+        if (userToken == null)
+        {
+            return IdentityResult.Failed(new IdentityError { Description = "Token not found." });
+        }
+
+        context.UserTokens.Remove(userToken);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return IdentityResult.Success;
+    }
+}
+
+Б.2 Фрагменти програмного коду для демонстрації взаємодії серверної частини з клієнтами
+
+[HttpPost("register")]
+public async Task<IActionResult> Register([FromBody] RegisterCommand command, CancellationToken cancellationToken)
+{
+    var result = await mediator.Send(command, cancellationToken);
+
+    if (result.IsSuccess)
+    {
+        return Ok(new { Message = "User registered successfully." });
+    }
+
+    return BadRequest(result.ErrorMessage);
+}
+using MediatR;
+using AirSense.Application.CQRS.Dtos.Commands;
+
+namespace AirSense.Application.CQRS.Commands.Auth.Register;
+
+public record RegisterCommand(string UserName, string Email, string Password) : IRequest<AuthResponseDto>;
+using MediatR;
+using Microsoft.AspNetCore.Identity;
+using AirSense.Application.CQRS.Dtos.Commands;
+using AirSense.Domain.UserAggregate;
+
+namespace AirSense.Application.CQRS.Commands.Auth.Register;
+
+public class RegisterCommandHandler(UserManager<User> userManager, RoleManager<IdentityRole<Guid>> roleManager) : IRequestHandler<RegisterCommand, AuthResponseDto>
+{ 
+    public async Task<AuthResponseDto> Handle(RegisterCommand request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email) || !request.Email.Contains("@"))
+        {
+            return CreateLoginResult(false, "The email provided is invalid");
+        }
+
+        var existingUser = await userManager.FindByEmailAsync(request.Email);
+
+        if (existingUser != null)
+        {
+            return CreateLoginResult(false, "A user with this email already exists");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.UserName))
+        {
+            return CreateLoginResult(false, "The username cannot be empty");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 6)
+        {
+            return CreateLoginResult(false, "The password must be at least 6 characters long");
+        }
+
+        var user = new User
+        {
+            UserName = request.UserName,
+            Email = request.Email
+        };
+
+        var createResult = await userManager.CreateAsync(user, request.Password);
+
+        if (!createResult.Succeeded)
+        {
+            return CreateLoginResult(false, "User registration failed");
+        }
+
+        if (!await roleManager.RoleExistsAsync("Client"))
+        {
+            await roleManager.CreateAsync(new IdentityRole<Guid>("Client"));
+        }
+
+        await userManager.AddToRoleAsync(user, "Client");
+
+        return CreateLoginResult(true);
+    }
+
+    private AuthResponseDto CreateLoginResult(bool success, string errorMessage = null, string token = null)
+    {
+        return new AuthResponseDto { IsSuccess = success, ErrorMessage = errorMessage, Token = token };
+    }
+}
+
