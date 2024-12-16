@@ -1,0 +1,215 @@
+МIНIСТЕРСТВО ОСВIТИ І НАУКИ УКРАЇНИ
+
+ХАРКIВСЬКИЙ НАЦІОНАЛЬНИЙ
+УНIВЕРСИТЕТ РАДIОЕЛЕКТРОНIКИ
+
+
+Кафедра «Програмна інженерія»
+
+
+Звіт
+з лабораторної роботи №3
+з дисципліни  «Аналіз та рефакторінг коду»
+на тему «РОЗРОБКА БІЗНЕС-ЛОГІКИ ТА ФУНКЦІЙ АДМІНІСТРУВАННЯ СЕРВЕРНОЇ ЧАСТИНИ ПРОГРАМНОЇ СИСТЕМИ»
+
+
+
+Виконав: 							Прийняв:
+ст. гр. ПЗПІ-22-7                       			ст. викладач кафедри ПІ        Ігнатьєв Олексій Геннадійович			Сокорчук Ігор Петрович
+
+
+
+
+Харкiв 2024
+1 МЕТА
+
+Розробити бізнес-логику та функції адміністрування серверної частини програмної системи для моніторингу якості повітря – AirSense.
+
+2 ЗАВДАННЯ
+
+2.1 Розробити бізнес логіку серверної частини програмної системи.
+
+Проєкт AirSense має на меті моніторинг якості повітря, обробку даних від датчиків та надання користувачам актуальної інформації щодо стану повітря. Основними елементами бізнес-логіки є збір, аналіз і надання даних про якість повітря, а також взаємодія користувачів із системою через персоналізовані сповіщення та рекомендації.
+Бізнес-логіка проєкту AirSense включає ефективне управління даними з датчиків, їх аналіз та відображення результатів для користувачів. Процеси збору, обробки та інформування базуються на точних розрахунках індексу якості повітря (AQI), що забезпечує користувачам своєчасну інформацію для покращення якості життя.
+
+2.2 Розробити функції адміністрування серверної частини програмної системи.
+
+Для адміністратора були реалізовані наступні функції управління: блокування користувача, перегляд даних про всіх користувачів та адміністраторів. Крім того, адміністратор може надавати іншим користувачам права адміністратора за потреби. Також були розроблені дві UML діаграми, які представлені на рисунках 2.1 та 2.2.
+ 
+Рисунок 2.1 – UML діаграма діяльності для серверної частини
+
+
+ 
+Рисунок 2.2 –  UML діаграма взаємодії для серверної частини.
+
+2.3 Створення програмної реалізації бізнес логіки та функцій адміністрування серверної частини.
+
+ВИСНОВКИ
+
+У результаті виконаної роботи було успішно розроблено бізнес-логіку та функції адміністрування серверної частини програмної системи AirSense для моніторингу якості повітря. Реалізовано ефективний процес збору та обробки даних з датчиків, що дозволяє користувачам отримувати актуальну інформацію про стан повітря в реальному часі. Також забезпечено належний рівень адміністрування системи, зокрема можливість управління користувачами та надання прав доступу. Розроблені UML діаграми, що ілюструють процеси діяльності та взаємодії системи, допомогли структурувати розуміння її функціонування. Отже, реалізація поставлених завдань дозволяє підвищити ефективність моніторингу якості повітря і забезпечити комфортні умови для користувачів.
+Посилання на відео: https://youtu.be/JaKctC7ZJf0?si=nBTM3rQP-PAHCzB8
+
+
+
+ДОДАТОК А
+
+Код адмін контролера та бізнес логіки
+using AirSense.Application.CQRS.Commands.Admins.AssignAdminRole;
+using AirSense.Application.CQRS.Commands.Admins.BanUser;
+using AirSense.Application.CQRS.Queries.Admins;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace AirSense.Api.Controllers
+{
+    [Route("api/admin")]
+    public class AdminController(IMediator mediator) : ControllerBase
+    {
+        // Метод для призначення ролі адміністратора користувачу
+        [HttpPost("assign-admin-role")]
+        [Authorize(Roles = "Admin")]  // Доступ лише для користувачів з роллю "Admin"
+        public async Task<IActionResult> AssignAdminRole([FromBody] AssignAdminRoleCommand command, CancellationToken cancellationToken)
+        {
+            // Відправка команди на призначення ролі адміністратора
+            var result = await mediator.Send(command, cancellationToken);
+
+            // Перевірка успішності виконання команди
+            if (result.IsSuccess)
+            {
+                // Повернення успішного відповіді
+                return Ok(new { Message = "Роль адміністратора призначена успішно." });
+            }
+
+            // У разі помилки повертається повідомлення про помилку
+            return BadRequest(result.ErrorMessage);
+        }
+
+        // Метод для отримання списку всіх користувачів
+        [HttpGet("user")]
+        [Authorize(Roles = "Admin")]  // Доступ лише для користувачів з роллю "Admin"
+        public async Task<IActionResult> GetAllUsers(CancellationToken cancellationToken)
+        {
+            // Запит на отримання всіх користувачів
+            var query = new GetAllUsersQuery();
+            var users = await mediator.Send(query, cancellationToken);
+
+            // Повернення списку користувачів у відповіді
+            return Ok(users);
+        }
+
+        // Метод для бана або розбану користувача
+        [HttpPost("ban/{userId}")]
+        [Authorize(Roles = "Admin")]  // Доступ лише для користувачів з роллю "Admin"
+        public async Task<IActionResult> BanUser(Guid userId, [FromQuery] bool isBanned, CancellationToken cancellationToken)
+        {
+            // Відправка команди на бан або розбан користувача
+            var result = await mediator.Send(new BanUserCommand(userId, isBanned), cancellationToken);
+
+            // Перевірка, чи була операція успішною
+            if (result)
+            {
+                // Повернення успішного повідомлення
+                return Ok(new { Message = isBanned ? "Користувача заблоковано успішно." : "Користувача розблоковано успішно." });
+            }
+
+            // Якщо користувач не знайдений, повертається помилка
+            return NotFound(new { Message = "Користувача не знайдено." });
+        }
+    }
+}
+
+using MediatR;
+
+namespace AirSense.Application.CQRS.Commands.Admins.AssignAdminRole
+{
+    public record AssignAdminRoleCommand(Guid UserId) : IRequest<CommandResultDto>;
+}
+public class CommandResultDto
+{
+    public bool IsSuccess { get; }
+    public string ErrorMessage { get; }
+
+    public CommandResultDto(bool isSuccess, string errorMessage = null)
+    {
+        IsSuccess = isSuccess;
+        ErrorMessage = errorMessage;
+    }
+}
+using AirSense.Domain.UserAggregate;
+using MediatR;
+using Microsoft.AspNetCore.Identity;
+
+namespace AirSense.Application.CQRS.Commands.Admins.AssignAdminRole
+{
+    public class AssignAdminRoleCommandHandler : IRequestHandler<AssignAdminRoleCommand, CommandResultDto>
+    {
+        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole<Guid>> _roleManager;
+
+        public AssignAdminRoleCommandHandler(UserManager<User> userManager, RoleManager<IdentityRole<Guid>> roleManager)
+        {
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
+
+        public async Task<CommandResultDto> Handle(AssignAdminRoleCommand request, CancellationToken cancellationToken)
+        {
+            var user = await _userManager.FindByIdAsync(request.UserId.ToString());
+            if (user == null)
+            {
+                return new CommandResultDto(false, "User not found.");
+            }
+
+            const string roleName = "Admin";
+
+            if (!await _roleManager.RoleExistsAsync(roleName))
+            {
+                return new CommandResultDto(false, "Admin role does not exist.");
+            }
+
+            if (await _userManager.IsInRoleAsync(user, roleName))
+            {
+                return new CommandResultDto(true); 
+            }
+
+            var result = await _userManager.AddToRoleAsync(user, roleName);
+
+            return result.Succeeded
+                ? new CommandResultDto(true)
+                : new CommandResultDto(false, "Failed to assign admin role.");
+        }
+    }
+}
+using MediatR;
+
+namespace AirSense.Application.CQRS.Commands.Admins.BanUser
+{
+    public record BanUserCommand(Guid UserId, bool IsBanned) : IRequest<bool>;
+
+}
+using MediatR;
+using Microsoft.AspNetCore.Identity;
+using AirSense.Domain.UserAggregate;
+using AirSense.Application.CQRS.Commands.Admins.BanUser;
+
+namespace AirSense.Application.CQRS.Commands.Admin.BanUser;
+
+public class BanUserCommandHandler(UserManager<User> userManager) : IRequestHandler<BanUserCommand, bool>
+{
+    public async Task<bool> Handle(BanUserCommand request, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByIdAsync(request.UserId.ToString());
+
+        if (user == null)
+        {
+            return false; 
+        }
+
+        user.IsBanned = request.IsBanned;
+        var result = await userManager.UpdateAsync(user);
+
+        return result.Succeeded;
+    }
+}
+
