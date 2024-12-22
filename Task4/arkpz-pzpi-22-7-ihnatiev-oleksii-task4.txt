@@ -1,0 +1,387 @@
+Міністерство освіти і науки України
+Харківський національний університет радіоелектроніки
+
+
+
+
+Кафедра програмної інженерії
+
+
+
+Звіт
+З дисципліни «Аналіз та рефакторинг коду»
+З лабораторної роботи №4
+
+
+
+
+Виконав:
+ст. гр. ПЗПІ-22-7
+Ігнатьєв Олексій Геннадійович 
+	Перевів:
+доц. каф. ПІ
+Сокорчук Ігор Петрович
+
+
+
+	
+
+
+
+
+
+
+Харків 2024
+1	Мета роботи: 
+Розробити програмне забезпечення для IoT або SmartDevice
+пристрою.
+
+2	Хід роботи:
+2.1 ІоТ сконструйовано завдяки додатку WOKWI та написано на коді для Arduine. У якості мікроконтролеру було використано Аrduino-Uno. У якості датчика вимірювання co, no, no2, o3, so2, pm2_5, pm10, nh3 повітря використано ESP32. 
+На рисунку 2.1 зображено схему пристрою, що використовується  в більш простих методологіях, а саме відображення якості повітря у консолі 
+
+  
+Рисунок 2.1 – схема пристрою з виводом в консоль
+		
+2.2 Створення UML діаграми прецедентів для ІоТ клієнта.
+На рисунку 2.2 зображено діаграму прецедентів. Ключовими акторами є MQTT брокер система та Користувач системи. IoT система відповідає за підключення до мережі, брокера MQTT та публікацію даних. Користувач системи відповідає за авторизацію та синхронізацію даних.  
+
+ 
+Рисунок 2.2 – Діаграма відношень між акторами та прецедентами в системі
+
+2.3 Розробка бізнес-логіки та функцій налаштування IoT-клієнта
+Підключення до WiFi
+Програма починає свою роботу з підключення до заданої WiFi-мережі. Вона безперервно перевіряє статус підключення і очікує, поки воно буде встановлено. Після успішного з'єднання виводиться IP-адреса пристрою в консоль для підтвердження з'єднання.
+Підключення до MQTT брокера
+Після підключення до WiFi програма ініціалізує з'єднання з MQTT-брокером. Для цього використовується публічний брокер HiveMQ із зазначенням порту, імені користувача та пароля. У разі невдалої спроби програма відображає код помилки та автоматично повторює спробу через 5 секунд.
+Считування даних про якість повітря
+Ключова функція програми — зчитування показників якості повітря (CO, NO, NO₂, O₃, SO₂, PM2.5, PM10, NH₃). Дані зчитуються у вигляді випадкових значень (для емуляції), що представляють концентрацію забруднюючих речовин у визначених одиницях вимірювання.
+Відправка даних у форматі JSON
+Програма формує JSON-об'єкт, що містить:
+•	Виміряні значення для кожного параметра.
+•	Поточний час вимірювання у форматі ISO 8601.
+•	Унікальний ідентифікатор пристрою.
+•	Прапорець синхронізації.
+Ці дані публікуються на MQTT-темі air/measurements. У разі успішної публікації програма позначає, що дані були відправлені, і завершує виконання.
+Завершення роботи
+Після успішного відправлення даних програма переходить у режим зупинки, де всі процеси циклу припиняються, і пристрій більше не надсилає нові дані, якщо не буде перезапущений.
+Особливості реалізації
+•	Відправка даних виконується лише один раз, щоб уникнути повторів.
+•	Для емуляції даних використовується генерація випадкових значень у заданих межах.
+•	Підключення до брокера відновлюється автоматично у разі розриву з'єднання.
+•	Відправка даних виконується із затримкою в 10 секунд після підключення.
+Ця логіка відповідає специфіці IoT-проєктів, що потребують стабільного підключення до мережі, відправки даних і контролю стану пристрою.
+
+2.4 Створення діаграми діяльності для ІоТ клієнта.
+ 
+Рисунок 2.3 – Діаграма діяльності ІоТ клієнта
+
+2.5 Створення програмної реалізації бізнес логіки та функцій налаштування ІоТ клієнта
+
+Для працездатності ІоТ системи було створено додатковий контролер в базі даних, який відповідає за отримання даних він ІоТ та надсилання їх на сервер. Код самої ІоТ системи та контролера винесено в додаток А.
+ 
+ 
+Рисунок 2.4 – Програмна реалізація контролеру для ІоТ системи
+
+3 Висновки:
+
+В ході лабораторної роботи було розроблено програмне забезпечення для IoT пристрою на базі ESP32, що дозволяє зчитувати вагові дані та передавати їх до сервера через MQTT брокер. Було реалізовано функції підключення до WiFi та MQTT, зчитування вагових даних та їх публікації у форматі JSON. Виконано моделювання системи за допомогою UML діаграм та описано бізнес-логіку. 
+
+Посилання на відео: https://youtu.be/Iy5JG875nRY?si=ni_YHgtcv9QRXf08
+
+
+
+
+
+
+
+
+
+ДОДАТОК А
+
+Програмний код ІоТ системи та контролеру для ІоТ
+
+#include <WiFi.h>
+#include <PubSubClient.h>
+
+// WiFi налаштування
+const char* ssid = "Wokwi-GUEST";
+const char* password = "";
+
+// MQTT налаштування
+const char* mqtt_server = "broker.hivemq.com";  // HiveMQ публічний MQTT брокер
+const int mqtt_port = 1883;  // Порт для небезпечного MQTT (без SSL)
+const char* mqtt_user = "";  
+const char* mqtt_password = "";
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+bool dataSent = false;  // Початково - дані не відправлені
+
+// Функція для підключення до WiFi
+void setup_wifi() {
+  delay(10);
+  Serial.println();
+  Serial.print("Підключення до ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi підключено!");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+// Функція для підключення до MQTT брокера
+void reconnect() {
+  while (!client.connected()) {
+    Serial.print("Підключення до MQTT...");
+    if (client.connect("ESP32Client", mqtt_user, mqtt_password)) {
+      Serial.println("підключено!");
+    } else {
+      Serial.print("помилка, rc=");
+      Serial.print(client.state());
+      Serial.println(" спроба підключення через 5 секунд");
+      delay(5000);
+    }
+  }
+}
+
+float generateRandomMeasurement(float min, float max) {
+  return random(min * 100, max * 100) / 100.0;  // Генерація випадкових значень з точністю до 2 знаків
+}
+
+// Відправка даних
+void sendData() {
+  if (dataSent) {
+    Serial.println("Дані вже були відправлені. Припиняємо відправку.");
+    return;  // Якщо дані вже відправлені, припиняємо відправку
+  }
+
+  // Генерація випадкових значень для газів та часток
+  float co = generateRandomMeasurement(0.0, 10.0);  // CO (0-10 ppm)
+  float no = generateRandomMeasurement(0.0, 10.0);  // NO (0-10 ppm)
+  float no2 = generateRandomMeasurement(0.0, 10.0);  // NO₂ (0-10 ppm)
+  float o3 = generateRandomMeasurement(0.0, 10.0);  // O₃ (0-10 ppm)
+  float so2 = generateRandomMeasurement(0.0, 10.0);  // SO₂ (0-10 ppm)
+  float pm2_5 = generateRandomMeasurement(0.0, 50.0);  // PM2.5 (0-50 µg/m³)
+  float pm10 = generateRandomMeasurement(0.0, 50.0);  // PM10 (0-50 µg/m³)
+  float nh3 = generateRandomMeasurement(0.0, 10.0);  // NH₃ (0-10 ppm)
+
+  // Створення JSON-формату
+  String jsonBody = "{"
+                     "\"co\": " + String(co) + ","
+                     "\"no\": " + String(no) + ","
+                     "\"no2\": " + String(no2) + ","
+                     "\"o3\": " + String(o3) + ","
+                     "\"so2\": " + String(so2) + ","
+                     "\"pm2_5\": " + String(pm2_5) + ","
+                     "\"pm10\": " + String(pm10) + ","
+                     "\"nh3\": " + String(nh3) + ","
+                     "\"measuredAt\": \"" + getCurrentTime() + "\","
+                     "\"deviceId\": \"ESP32Device\","
+                     "\"isSynced\": true"
+                     "}";
+
+  Serial.println("Відправка даних...");
+  Serial.println(jsonBody);
+
+  // Публікація даних на тему "air/measurements"
+  if (client.publish("air/measurements", jsonBody.c_str())) {
+    Serial.println("Дані успішно відправлені!");
+    dataSent = true;  // Позначаємо, що дані були відправлені
+    stopProgram();  // Зупинка програми після успішної відправки
+  } else {
+    Serial.println("Помилка відправки даних!");
+  }
+}
+
+// Отримання поточного часу у форматі ISO 8601
+String getCurrentTime() {
+  unsigned long currentMillis = millis();
+  char timeBuffer[30];
+  snprintf(timeBuffer, sizeof(timeBuffer), "%04d-%02d-%02dT%02d:%02d:%02d.%03dZ", 
+           2024, 12, 22, 15, 8, 19, currentMillis);
+  return String(timeBuffer);
+}
+
+// Функція для зупинки програми
+void stopProgram() {
+  Serial.println("Програма зупинена.");
+  while (true) {
+    // Завершуємо виконання програми, зупиняючи всі цикли
+    delay(1000);  // Безкінечно зупиняємо програму
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  setup_wifi();
+  client.setServer(mqtt_server, mqtt_port);
+}
+
+void loop() {
+  if (!client.connected()) {
+    reconnect();
+  }
+  client.loop();
+  // Відправка даних лише один раз
+  if (!dataSent) {  // Якщо дані ще не були відправлені
+    static unsigned long lastMsg = 0;
+    unsigned long now = millis();
+    if (now - lastMsg > 10000) {  // 10 секунд
+      lastMsg = now;
+      sendData();
+    }
+  }
+}
+
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+using MQTTnet;
+using MQTTnet.Client;
+using MQTTnet.Client.Options;
+using AirSense.Domain.AirQualityAggregate;
+using AirSense.Application.Interfaces.Repositories;
+
+namespace AirSense.Api.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class MqttController : ControllerBase
+    {
+        private readonly MqttService _mqttService;
+
+        public MqttController(MqttService mqttService)
+        {
+            _mqttService = mqttService;
+        }
+
+        [HttpGet("last-message")]
+        public IActionResult GetLastMessage()
+        {
+            if (string.IsNullOrEmpty(_mqttService.LastMessage))
+            {
+                return NotFound("Немає отриманих повідомлень.");
+            }
+
+            return Ok(_mqttService.LastMessage);
+        }
+    }
+}
+using AirSense.Application.Interfaces.Repositories;
+using MQTTnet.Client.Options;
+using MQTTnet.Client;
+using MQTTnet;
+using AirSense.Domain.AirQualityAggregate;
+using Newtonsoft.Json;
+using System.Text;
+using Microsoft.Extensions.DependencyInjection;
+
+public class MqttService : IHostedService
+{
+    private readonly IMqttClient _mqttClient;
+    private readonly IMqttClientOptions _mqttOptions;
+    private readonly IServiceScopeFactory _serviceScopeFactory; // Додано
+
+    private readonly string _mqttBroker = "broker.hivemq.com";
+    private readonly int _mqttPort = 1883;
+    private readonly string _mqttTopic = "air/measurements";
+
+    public string LastMessage { get; private set; }
+
+    public MqttService(IServiceScopeFactory serviceScopeFactory) // Заміна IAirQualityRepository
+    {
+        _serviceScopeFactory = serviceScopeFactory;
+
+        var factory = new MqttFactory();
+        _mqttClient = factory.CreateMqttClient();
+
+        _mqttOptions = new MqttClientOptionsBuilder()
+            .WithTcpServer(_mqttBroker, _mqttPort)
+            .Build();
+
+        ConfigureHandlers();
+    }
+
+    private void ConfigureHandlers()
+    {
+        _mqttClient.UseConnectedHandler(async e =>
+        {
+            Console.WriteLine("Підключено до брокера.");
+            try
+            {
+                await _mqttClient.SubscribeAsync(new MqttTopicFilterBuilder().WithTopic(_mqttTopic).Build());
+                Console.WriteLine($"Підписано на тему: {_mqttTopic}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Помилка підписки: {ex.Message}");
+            }
+        });
+
+        _mqttClient.UseDisconnectedHandler(e =>
+        {
+            Console.WriteLine("Відключено від брокера.");
+        });
+
+        _mqttClient.UseApplicationMessageReceivedHandler(async e =>
+        {
+            LastMessage = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+            Console.WriteLine($"Отримано повідомлення: {LastMessage}");
+
+            try
+            {
+                var airQualityData = JsonConvert.DeserializeObject<AirQuality>(LastMessage);
+
+                if (airQualityData != null)
+                {
+                    // Створюємо scope для використання IAirQualityRepository
+                    using var scope = _serviceScopeFactory.CreateScope();
+                    var airQualityRepository = scope.ServiceProvider.GetRequiredService<IAirQualityRepository>();
+
+                    await airQualityRepository.AddAirQualityAsync(airQualityData);
+                    Console.WriteLine("Дані збережено в базу даних.");
+                }
+                else
+                {
+                    Console.WriteLine("Помилка десеріалізації даних.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Помилка при збереженні даних: {ex.Message}");
+            }
+        });
+    }
+
+    public async Task StartAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _mqttClient.ConnectAsync(_mqttOptions, cancellationToken);
+            Console.WriteLine("Очікування повідомлень...");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Помилка підключення: {ex.Message}");
+        }
+    }
+
+    public async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await _mqttClient.DisconnectAsync();
+        Console.WriteLine("Відключення від брокера...");
+    }
+}
