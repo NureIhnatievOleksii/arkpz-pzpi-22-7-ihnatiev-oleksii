@@ -6,6 +6,7 @@ using AirSense.Domain.AirQualityAggregate;
 using Newtonsoft.Json;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
+using AirSense.Application.CQRS.Commands.AirQuality;
 
 public class MqttService : IHostedService
 {
@@ -61,17 +62,22 @@ public class MqttService : IHostedService
 
             try
             {
+
                 var airQualityData = JsonConvert.DeserializeObject<AirQuality>(LastMessage);
 
                 if (airQualityData != null)
                 {
-                    // Створюємо scope для використання IAirQualityRepository
+                    double aqi = AirQualityCalculator.CalculateAQI(airQualityData);
+                    Console.WriteLine($"Розрахований AQI: {aqi:F2}");
+
+                    // Збереження даних в базу
                     using var scope = _serviceScopeFactory.CreateScope();
                     var airQualityRepository = scope.ServiceProvider.GetRequiredService<IAirQualityRepository>();
 
                     await airQualityRepository.AddAirQualityAsync(airQualityData);
                     Console.WriteLine("Дані збережено в базу даних.");
                 }
+
                 else
                 {
                     Console.WriteLine("Помилка десеріалізації даних.");
