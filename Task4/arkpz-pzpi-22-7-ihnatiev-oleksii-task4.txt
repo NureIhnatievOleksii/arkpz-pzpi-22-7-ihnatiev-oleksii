@@ -109,8 +109,8 @@ const char* ssid = "";
 const char* password = "";
 
 // MQTT налаштування
-const char* mqtt_server = "";  // HiveMQ публічний MQTT брокер
-const int mqtt_port = ;  // Порт для небезпечного MQTT (без SSL)
+const char* mqtt_server = ""; 
+const int mqtt_port = ;  )
 const char* mqtt_user = "";  
 const char* mqtt_password = "";
 
