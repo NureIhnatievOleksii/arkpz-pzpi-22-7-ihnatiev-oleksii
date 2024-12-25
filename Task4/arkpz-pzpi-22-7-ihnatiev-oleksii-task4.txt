@@ -105,12 +105,12 @@
 #include <PubSubClient.h>
 
 // WiFi налаштування
-const char* ssid = "Wokwi-GUEST";
+const char* ssid = "";
 const char* password = "";
 
 // MQTT налаштування
-const char* mqtt_server = "broker.hivemq.com";  // HiveMQ публічний MQTT брокер
-const int mqtt_port = 1883;  // Порт для небезпечного MQTT (без SSL)
+const char* mqtt_server = "";  // HiveMQ публічний MQTT брокер
+const int mqtt_port = ;  // Порт для небезпечного MQTT (без SSL)
 const char* mqtt_user = "";  
 const char* mqtt_password = "";
 
@@ -194,7 +194,7 @@ void sendData() {
   Serial.println(jsonBody);
 
   // Публікація даних на тему "air/measurements"
-  if (client.publish("air/measurements", jsonBody.c_str())) {
+  if (client.publish("", jsonBody.c_str())) {
     Serial.println("Дані успішно відправлені!");
     dataSent = true;  // Позначаємо, що дані були відправлені
     stopProgram();  // Зупинка програми після успішної відправки
