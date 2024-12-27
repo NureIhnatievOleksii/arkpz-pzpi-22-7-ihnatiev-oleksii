@@ -6,8 +6,8 @@ const char* ssid = "Wokwi-GUEST";
 const char* password = "";
 
 // MQTT налаштування
-const char* mqtt_server = "broker.hivemq.com";  // HiveMQ публічний MQTT брокер
-const int mqtt_port = 1883;  // Порт для небезпечного MQTT (без SSL)
+const char* mqtt_server = ""; 
+const int mqtt_port = ;
 const char* mqtt_user = "";  
 const char* mqtt_password = "";
 

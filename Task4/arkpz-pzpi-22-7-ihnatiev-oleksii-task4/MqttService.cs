@@ -14,9 +14,9 @@ public class MqttService : IHostedService
     private readonly IMqttClientOptions _mqttOptions;
     private readonly IServiceScopeFactory _serviceScopeFactory; // Додано
 
-    private readonly string _mqttBroker = "broker.hivemq.com";
-    private readonly int _mqttPort = 1883;
-    private readonly string _mqttTopic = "air/measurements";
+    private readonly string _mqttBroker = "";
+    private readonly int _mqttPort =;
+    private readonly string _mqttTopic = "";
 
     public string LastMessage { get; private set; }
 
