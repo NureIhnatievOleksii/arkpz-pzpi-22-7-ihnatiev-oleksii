@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailService", "EmailService\EmailService.csproj", "{9A16625D-03E8-49C9-AD98-D306CB31A035}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirSense.Api", "AirSense.Api\AirSense.Api.csproj", "{EFAA42B9-EB4F-4038-9551-0B8A924016D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirSense.Application", "AirSense.Application\AirSense.Application.csproj", "{AD022766-4649-4CB2-ABCF-F672FF0C6940}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirSense.Domain", "AirSense.Domain\AirSense.Domain.csproj", "{EAD76276-E313-486F-A948-8BD4199A1923}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AirSense.Infrastructure", "AirSense.Infrastructure\AirSense.Infrastructure.csproj", "{499310A5-122F-4B00-8B7F-256AD83A8AE0}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{2A20D4B1-89C2-4730-B93A-359C591CD723}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9A16625D-03E8-49C9-AD98-D306CB31A035}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A16625D-03E8-49C9-AD98-D306CB31A035}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A16625D-03E8-49C9-AD98-D306CB31A035}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A16625D-03E8-49C9-AD98-D306CB31A035}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFAA42B9-EB4F-4038-9551-0B8A924016D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFAA42B9-EB4F-4038-9551-0B8A924016D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFAA42B9-EB4F-4038-9551-0B8A924016D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFAA42B9-EB4F-4038-9551-0B8A924016D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD022766-4649-4CB2-ABCF-F672FF0C6940}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD022766-4649-4CB2-ABCF-F672FF0C6940}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD022766-4649-4CB2-ABCF-F672FF0C6940}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD022766-4649-4CB2-ABCF-F672FF0C6940}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAD76276-E313-486F-A948-8BD4199A1923}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAD76276-E313-486F-A948-8BD4199A1923}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAD76276-E313-486F-A948-8BD4199A1923}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAD76276-E313-486F-A948-8BD4199A1923}.Release|Any CPU.Build.0 = Release|Any CPU
+		{499310A5-122F-4B00-8B7F-256AD83A8AE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{499310A5-122F-4B00-8B7F-256AD83A8AE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{499310A5-122F-4B00-8B7F-256AD83A8AE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{499310A5-122F-4B00-8B7F-256AD83A8AE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A20D4B1-89C2-4730-B93A-359C591CD723}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A20D4B1-89C2-4730-B93A-359C591CD723}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A20D4B1-89C2-4730-B93A-359C591CD723}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A20D4B1-89C2-4730-B93A-359C591CD723}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {15E5B813-54E8-47BE-B218-D9957E845D89}
+	EndGlobalSection
+EndGlobal

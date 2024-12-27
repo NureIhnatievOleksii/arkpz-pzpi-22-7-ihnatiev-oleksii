@@ -1,0 +1,133 @@
+﻿Міністерство освіти і науки України
+Харківський національний університет радіоелектроніки
+
+
+
+
+Кафедра програмної інженерії
+
+
+
+Звіт
+З дисципліни «Аналіз та рефакторинг коду»
+З лабораторної роботи №5
+
+
+
+
+Виконав:
+ст. гр. ПЗПІ-22-7
+Ігнатьєв Олексій Геннадійович 
+Перевів:
+доц. каф. ПІ
+Сокорчук Ігор Петрович
+
+
+	
+
+
+
+
+
+
+Харків 2024
+1 МЕТА РОБОТИ
+
+Розгорнути програмну систему, перевірити її функціональність та налаштувати для безперебійної роботи. Забезпечити коректне взаємодія з іншими компонентами та продемонструвати стабільність роботи розгорнутої системи в реальних умовах.
+
+
+2 ХІД РОБОТИ
+
+У процесі виконання лабораторної роботи я підготував свій проєкт до роботи в Docker. Було виконано такі основні дії:
+
+- Створення контейнерів: Розроблено Dockerfile для бекенд-частини додатку. Додано всі необхідні залежності, на основі яких зібрано Docker-образ для запуску додатку в контейнері.  
+- Налаштування середовища Docker Compose: Сконфігуровано docker-compose.yml для одночасного запуску бекенду та Microsoft SQL Server. Налаштовано сервіси для взаємодії додатку та бази даних, визначено мережу для зв'язку контейнерів і прописано змінні середовища (наприклад, ім'я користувача, пароль, назва бази даних).  
+- Робота з базою даних: Microsoft SQL Server налаштовано у Docker-контейнері таким чином, щоб база даних автоматично створювалася під час старту. Перевірено підключення FastAPI до бази даних.  
+- Перевірка функціоналу: Запустив додаток із використанням Docker Compose, виконав тестування API та перевірив взаємодію з базою даних.  
+- Підсумок: Завдяки контейнеризації проєкт отримав мобільність та можливість швидкого розгортання на інших пристроях. Це спростило налаштування середовища та зробило його незалежним від системних конфігурацій.  
+
+ВИСНОВКИ
+
+	В результаті виконання цієї роботи ми створили контейнеризовану інфраструктуру для проєкту за допомогою Docker. Це дозволило розгорнути проєкт разом із базою даних Microsoft SQL Server у контейнерах, забезпечуючи портативність і зручність запуску на інших пристроях. Такий підхід значно спрощує процес налаштування середовища, знижує ймовірність помилок конфігурації та сприяє більш ефективному управлінню додатком у різних середовищах.
+
+
+ДОДАТОК А
+Фрагменти коду для розгортання програми в Docker
+
+А.1 – docker-compose файл
+networks:
+  demoappnetowrk: 
+
+services:
+ mssql-container:
+    image: mcr.microsoft.com/mssql/server:latest
+    container_name: mssql-container
+    environment:
+      - ACCEPT_EULA=Y   # Accept the End-User License Agreement
+      - SA_PASSWORD=MyDemoPassword@2022
+    ports:
+     - "8002:1433"
+    networks:
+        - demoappnetowrk
+ airsense.api:
+    image: ${DOCKER_REGISTRY-}airsenseapi
+    build:
+      context: .
+      dockerfile: AirSense.Api/Dockerfile
+    depends_on:
+    - mssql-container
+    networks:
+        - demoappnetowrk
+
+А.2 – Dockerfile файл
+# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+# This stage is used when running from VS in fast mode (Default for Debug configuration)
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+USER $APP_UID
+WORKDIR /app
+EXPOSE 8080
+
+
+# This stage is used to build the service project
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+ARG BUILD_CONFIGURATION=Release
+WORKDIR /src
+COPY ["AirSense.Api/AirSense.Api.csproj", "AirSense.Api/"]
+COPY ["AirSense.Application/AirSense.Application.csproj", "AirSense.Application/"]
+COPY ["AirSense.Domain/AirSense.Domain.csproj", "AirSense.Domain/"]
+COPY ["EmailService/EmailService.csproj", "EmailService/"]
+COPY ["AirSense.Infrastructure/AirSense.Infrastructure.csproj", "AirSense.Infrastructure/"]
+RUN dotnet restore "./AirSense.Api/AirSense.Api.csproj"
+COPY . .
+WORKDIR "/src/AirSense.Api"
+RUN dotnet build "./AirSense.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+# This stage is used to publish the service project to be copied to the final stage
+FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "./AirSense.Api.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "AirSense.Api.dll"]
+
+
+ДОДАТОК Б
+Відео з поясненнями:
+https://youtu.be/Sr4wlFXICno?si=UfFI1h1wFJBfK7Iu - посилання на відео з поясненнями.
+
+
+2
+
+
+
+
+
+
+
+
+
+
